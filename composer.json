@@ -1,0 +1,26 @@
+{
+  "name": "fyi/infinitum",
+  "description": "FYI Infinitum package",
+  "keywords": [
+    "fyi",
+    "infinitum"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "FYI",
+      "email": "info@fyi.pt"
+    }
+  ],
+  "type": "library",
+  "require": {
+    "php": ">=7.0",
+    "guzzlehttp/guzzle": "^6.3",
+    "phpunit/phpunit": "6.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Fyi\\Infinitum\\": "src/"
+    }
+  }
+}
