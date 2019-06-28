@@ -1,4 +1,5 @@
 <?php
+
 namespace Fyi\Infinitum\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -24,7 +25,7 @@ class DeviceTest extends TestCase
     try {
       # Test to create a device 
       $device = $this->device->registerDevice($input);
-      $this->assertTrue($device != null);
+      $this->assertTrue($device !== null);
       # -----------------------------------------------------------------------
 
       # Test to create the same device again
@@ -42,12 +43,12 @@ class DeviceTest extends TestCase
       ];
       # Test to create a device user 
       $device_user = $this->device->registerDeviceUser($device_user_input);
-      $this->assertTrue($device_user != null);
+      $this->assertTrue($device_user !== null);
       # -----------------------------------------------------------------------
 
       # Test to delete the previously created device
-      $delete = $this->device->deleteDevice(["id" => $device["body"]->id]);
-      $this->assertTrue($delete != null);
+      $delete = $this->device->deleteDevice(["id" => $device["id"]]);
+      $this->assertTrue($delete !== null);
       # -----------------------------------------------------------------------
     } catch (\Throwable $th) {
       var_dump($th->getMessage());

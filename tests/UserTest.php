@@ -27,7 +27,7 @@ class UserTest extends TestCase
     try {
       # Test to create a user 
       $user = $this->user->register($input);
-      $this->assertTrue($user != null);
+      $this->assertTrue($user !== null);
       # -----------------------------------------------------------------------
 
       # Test to create the same user again
@@ -41,8 +41,8 @@ class UserTest extends TestCase
       # -----------------------------------------------------------------------
 
       # Test to delete the previously created user
-      $delete = $this->user->deleteUser(["id" => $user["body"]->id]);
-      $this->assertTrue($delete != null);
+      $delete = $this->user->deleteUser(["id" => $user["id"]]);
+      $this->assertTrue($delete !== null);
       # -----------------------------------------------------------------------
 
     } catch (\Throwable $th) {

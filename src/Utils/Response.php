@@ -2,7 +2,7 @@
 
 namespace Fyi\Infinitum\Utils;
 
-class Response 
+class Response
 {
   protected $body;
   protected $success;
@@ -13,15 +13,13 @@ class Response
     $this->success = $success;
   }
 
-  public function json() {
+  public function json()
+  {
     $data = [];
 
-    if($this->success)
-      $data["body"] = $this->body;      
-      
+    if ($this->success)
+      return $data;
     else
-      $data["error"] = $this->body;
-
-    return $data;
+      return ["error" => $this->body];
   }
 }

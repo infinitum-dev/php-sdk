@@ -64,7 +64,7 @@ class Infinitum extends Http\Rest
          $this->rest = new Rest($url);
          $response = $this->rest->post('init', ['app_token' => $this->app_token, 'app_key' => $this->app_key, 'app_secret' => $this->app_secret]);
          return $response;
-         $returnable = new Response(["access_token" => $response["body"]->access_token], 200, true);
+         $returnable = new Response(["access_token" => $response["access_token"]], 200, true);
          return $returnable->json();
       } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
          throw $exc;

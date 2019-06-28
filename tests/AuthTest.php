@@ -1,4 +1,5 @@
 <?php
+
 namespace Fyi\Infinitum\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -27,7 +28,7 @@ class AuthTest extends TestCase
     # Regular login test
     try {
       $user = $this->auth->login($input);
-      $this->assertTrue($user != null);
+      $this->assertTrue($user !== null);
     } catch (\Exception $exc) {
       var_dump($exc->getBody());
     }
@@ -40,19 +41,17 @@ class AuthTest extends TestCase
       ];
       # Test to create a user 
       $new_user = $this->user->register($user_input);
-      $this->assertTrue($new_user != null);
+      $this->assertTrue($new_user !== null);
       # -----------------------------------------------------------------------
 
       # Regular login with new User
       $user_loggedin = $this->auth->login($user_input);
-      $this->assertTrue($user_loggedin != null);
-
+      $this->assertTrue($user_loggedin !== null);
       # -----------------------------------------------------------------------
 
       # Test to delete the previously created user
-      $delete_user = $this->user->deleteUser(["id" => $new_user["body"]->id]);
-      $this->assertTrue($delete_user != null);
-
+      $delete_user = $this->user->deleteUser(["id" => $new_user["id"]]);
+      $this->assertTrue($delete_user !== null);
       # -----------------------------------------------------------------------
 
       # Test unauthorize on login with deleted user

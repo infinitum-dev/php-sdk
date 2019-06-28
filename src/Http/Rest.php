@@ -59,7 +59,7 @@ class Rest
             $code     = $response->getStatusCode();
             $body     = json_decode($response->getBody()->getContents());
 
-            return ["body" => $body];
+            return $this->convert_object_to_array($body);
         } else {
             throw new \Fyi\Infinitum\Exceptions\SDK\MissingTokenException;
         }
@@ -88,16 +88,16 @@ class Rest
                 $status = $response->getReasonPhrase();
 
                 if ($status !== "OK") {
-                    throw new \Fyi\Infinitum\Exceptions\InfinitumAPIException($response->getBody()->getContents()); //todo depois da tarefa de normalizacao de erros
+                    throw new \Fyi\Infinitum\Exceptions\InfinitumAPIException($response->getBody()->getContents());
                 }
-
                 $body = json_decode($response->getBody()->getContents());
-                return ["body" => $body];
+
+                return $this->convert_object_to_array($body);
             } else {
                 throw new \Fyi\Infinitum\Exceptions\SDK\MissingTokenException;
             }
         } catch (\GuzzleHttp\Exception\ClientException $exc) {
-            throw new \Fyi\Infinitum\Exceptions\InfinitumAPIException(json_decode($exc->getResponse()->getBody()->getContents())); //todo depois da tarefa de normalizacao de erros
+            throw new \Fyi\Infinitum\Exceptions\InfinitumAPIException(json_decode($exc->getResponse()->getBody()->getContents()));
         }
     }
 
@@ -125,7 +125,7 @@ class Rest
             }
 
             $body = json_decode($response->getBody()->getContents());
-            return ["body" => $body];
+            return $this->convert_object_to_array($body);
         } else {
             throw new \Fyi\Infinitum\Exceptions\SDK\MissingTokenException;
         }
@@ -155,5 +155,17 @@ class Rest
         }
 
         return $resources;
+    }
+
+    function convert_object_to_array($obj)
+    {
+        if (is_object($obj)) $obj = (array) $obj;
+        if (is_array($obj)) {
+            $new = array();
+            foreach ($obj as $key => $val) {
+                $new[$key] = $this->convert_object_to_array($val);
+            }
+        } else $new = $obj;
+        return $new;
     }
 }

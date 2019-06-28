@@ -19,9 +19,9 @@ class Config
 
     $this->infinitum = new \Fyi\Infinitum\Infinitum;
     $response = $this->infinitum->init($this->workspace, $this->app_token, $this->app_key, $this->app_secret);
-    if (isset($response["body"])) {
-      if (isset($response["body"]->access_token)) {
-        $this->access_token = $response["body"]->access_token;
+    if ($response) {
+      if (isset($response["access_token"])) {
+        $this->access_token = $response["access_token"];
       } else {
         throw new \Exception("Invalid config.", 400);
       }
