@@ -25,7 +25,7 @@ class InfinitumAPIException extends Exception
       $this->status = $body->status;
     }
 
-    parent::__construct($this->message, $this->code, null);
+    parent::__construct($this->message, $this->status, null);
     $this->body = $body;
   }
 
