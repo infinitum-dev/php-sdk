@@ -17,8 +17,8 @@ class Config
     $this->app_key = $app_key;
     $this->app_token = $app_token;
 
-    $this->infinitum = new \Fyi\Infinitum\Infinitum;
-    $response = $this->infinitum->init($this->workspace, $this->app_token, $this->app_key, $this->app_secret);
+    $this->infinitum = new \Fyi\Infinitum\Infinitum($this->workspace, $this->app_token, $this->app_key, $this->app_secret);
+    $response = $this->infinitum->init();
     if ($response) {
       if (isset($response["access_token"])) {
         $this->access_token = $response["access_token"];

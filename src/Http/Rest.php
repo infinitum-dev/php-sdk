@@ -41,8 +41,18 @@ class Rest
     }
 
     /**
+     * Add Header to the http client
+     * 
+     */
+    protected function addRequestHeader(string $key, string $value)
+    {
+        $this->requestHeaders[$key] = $value;
+    }
+
+    /**
      * Send a GET request with query parameters.
      *
+     * 
      * @param string $path           Request path
      * @param array  $parameters     GET parameters
      * @param array  $requestHeaders Request Headers

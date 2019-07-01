@@ -35,37 +35,40 @@ class Infinitum extends Http\Rest
 
    protected $access_token;
 
-   public function __construct()
-   { }
+   public function __construct($workspace, $app_token, $app_key, $app_secret)
+   {
+      $this->workspace  = $workspace;
+      if (strpos($workspace, "localhost") > -1) {
+         $url = "http://" . $this->workspace . "/api/";
+      } else {
+         $url = "https://" . $this->workspace . ".infinitum.app/api/";
+      }
+      $this->rest = new Rest($url);
+      $this->setAppToken($app_token);
+      $this->app_key    = $app_key;
+      $this->app_secret = $app_secret;
+   }
 
-   public function setAccessToken($access_token, $app_token)
+   public function setAccessToken($access_token)
    {
       $this->access_token = $access_token;
-      $this->rest->setRequestHeaders([
-         "Authorization" => "Bearer " . $access_token,
-         "AppToken" =>  $app_token
-      ]);
+      $this->rest->addRequestHeader("Authorization", "Bearer " . $access_token);
       return true;
    }
 
+   public function setAppToken($app_token)
+   {
+      $this->app_token = $app_token;
+      $this->rest->addRequestHeader("AppToken", $app_token);
+      return true;
+   }
 
-   public function init($workspace, $app_token, $app_key, $app_secret)
+   public function init()
    {
       try {
-         $this->workspace  = $workspace;
-         if (strpos($workspace, "localhost") > -1) {
-            $url = "http://" . $this->workspace . "/api/";
-         } else {
-            $url = "https://" . $this->workspace . ".infinitum.app/api/";
-         }
-         $this->app_token  = $app_token;
-         $this->app_key    = $app_key;
-         $this->app_secret = $app_secret;
-         $this->rest = new Rest($url);
          $response = $this->rest->post('init', ['app_token' => $this->app_token, 'app_key' => $this->app_key, 'app_secret' => $this->app_secret]);
+         $this->setAccessToken($response["access_token"]);
          return $response;
-         $returnable = new Response(["access_token" => $response["access_token"]], 200, true);
-         return $returnable->json();
       } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
          throw $exc;
       } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
