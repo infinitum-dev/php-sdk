@@ -37,7 +37,13 @@ class User extends Infinitum
             }
 
             if (isset($input["photo"])) {
-                $data["photo64"] =   "data:" . $input["photo"]->getMimeType() . ";base64," . base64_encode(file_get_contents($input["photo"]));
+                if (gettype($input["photo"]) === "resource") {
+                    $data["photo64"] =   "data:image/png;base64," . base64_encode(stream_get_contents($input["photo"]));
+                } else {
+                    $data["photo64"] =   "data:image/png;base64," . base64_encode(file_get_contents($input["photo"]));
+                }
+            } else if (isset($input["photo64"])) {
+                $data["photo64"] = $input["photo64"];
             }
 
             if (isset($input["birthdate"])) {
@@ -96,10 +102,15 @@ class User extends Infinitum
             $data = [];
 
             if (isset($input["photo"])) {
-                $data["photo64"] =   "data:" . $input["photo"]->getMimeType() . ";base64," . base64_encode(file_get_contents($input["photo"]));
+                if (gettype($input["photo"]) === "resource") {
+                    $data["photo64"] =   "data:image/png;base64," . base64_encode(stream_get_contents($input["photo"]));
+                } else {
+                    $data["photo64"] =   "data:image/png;base64," . base64_encode(file_get_contents($input["photo"]));
+                }
             } else if (isset($input["photo64"])) {
                 $data["photo64"] = $input["photo64"];
             }
+
             return $this->rest->post('users/face', $data);
         } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
             throw $exc;
@@ -115,6 +126,25 @@ class User extends Infinitum
     {
         try {
             return $this->rest->get('users');
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
+    public function getByEmail($input)
+    {
+        try {
+            if (isset($input["email"])) {
+                $email = $input["email"];
+            } else {
+                throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException("Missing email", 400);
+            }
+
+            return $this->rest->get('users/' . $email);
         } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
             throw $exc;
         } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
