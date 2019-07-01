@@ -90,6 +90,40 @@ class User extends Infinitum
         }
     }
 
+    public function face($input)
+    {
+        try {
+            $data = [];
+
+            if (isset($input["photo"])) {
+                $data["photo64"] =   "data:" . $input["photo"]->getMimeType() . ";base64," . base64_encode(file_get_contents($input["photo"]));
+            } else if (isset($input["photo64"])) {
+                $data["photo64"] = $input["photo64"];
+            }
+            return $this->rest->post('users/face', $data);
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
+
+    public function getUsers()
+    {
+        try {
+            return $this->rest->get('users');
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
     public function deleteUser($input)
     {
         try {
