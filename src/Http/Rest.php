@@ -49,19 +49,22 @@ class Rest
      */
     protected function get(string $path, array $parameters = [], array $requestHeaders = [])
     {
+        try {
+            if (isset($this->requestHeaders["Authorization"])) {
+                if (count($parameters) > 0) {
+                    $path .= '?' . http_build_query($parameters);
+                }
 
-        if (isset($this->requestHeaders["Authorization"])) {
-            if (count($parameters) > 0) {
-                $path .= '?' . http_build_query($parameters);
+                $response = $this->client->request('GET', $path, ['headers' => $this->requestHeaders]);
+                $code     = $response->getStatusCode();
+                $body     = json_decode($response->getBody()->getContents());
+
+                return $this->convert_object_to_array($body);
+            } else {
+                throw new \Fyi\Infinitum\Exceptions\SDK\MissingTokenException;
             }
-
-            $response = $this->client->request('GET', $path, ['headers' => $this->requestHeaders]);
-            $code     = $response->getStatusCode();
-            $body     = json_decode($response->getBody()->getContents());
-
-            return $this->convert_object_to_array($body);
-        } else {
-            throw new \Fyi\Infinitum\Exceptions\SDK\MissingTokenException;
+        } catch (\GuzzleHttp\Exception\ClientException $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumAPIException(json_decode($exc->getResponse()->getBody()->getContents()));
         }
     }
 
