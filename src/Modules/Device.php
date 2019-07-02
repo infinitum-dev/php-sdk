@@ -104,6 +104,53 @@ class Device  extends Infinitum
         }
     }
 
+
+    public function license($input)
+    {
+        try {
+            $data = [];
+
+            if (isset($input["mac_address"])) {
+                $data["mac_address"] = $input["mac_address"];
+            }
+
+            if (isset($input["app_id"])) {
+                $data["app_id"] = $input["app_id"];
+            }
+
+            if (isset($input["licensed"])) {
+                $data["licensed"] = $input["licensed"];
+            }
+
+            return $this->rest->post('devices/license', $data);
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
+    public function validate($input)
+    {
+        try {
+            $data = [];
+
+            if (isset($input["mac_address"])) {
+                $data["mac_address"] = $input["mac_address"];
+            }
+
+            return $this->rest->post('devices/validate', $data);
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
     public function deleteDevice($input)
     {
         try {
