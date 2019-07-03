@@ -14,12 +14,16 @@ class Auth extends Infinitum
       $this->rest = $rest;
    }
 
-   public function biometrid($input)
+   public function biometric($input)
    {
       try {
          $data = [];
          if (isset($input["photo"])) {
-            $data["photo64"] = "data:" . $input["photo"]->getMimeType() . ";base64," . base64_encode(file_get_contents($input["photo"]));
+            if (gettype($input["photo"]) === "resource") {
+               $data["photo64"] =   "data:image/png;base64," . base64_encode(stream_get_contents($input["photo"]));
+            } else {
+               $data["photo64"] =   "data:image/png;base64," . base64_encode(file_get_contents($input["photo"]));
+            }
          } else if (isset($input["photo64"])) {
             $data["photo64"] = $input["photo64"];
          }
@@ -52,7 +56,7 @@ class Auth extends Infinitum
             $data["data"] = $input["data"];
          }
 
-         return $this->rest->post('auth/biometrid', $data);
+         return $this->rest->post('auth/biometric', $data);
       } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
          throw $exc;
       } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {

@@ -160,7 +160,7 @@ class User extends Infinitum
             if (isset($input["id"])) {
                 return $this->rest->delete('users/' . $input["id"]);
             } else {
-                throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException("Missing User info.");
+                throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException("Missing User info.", 400);
             }
         } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
             throw $exc;
