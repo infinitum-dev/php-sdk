@@ -5,7 +5,7 @@
 The [Infinitum](https://packagist.org/packages/fyi/infinitum) SDK can be installed via [Composer](https://getcomposer.org/).
 
 ```
-composer require fyi/infinitum
+composer require infinitum/php-sdk
 ```
 
 ## Usage
@@ -27,14 +27,14 @@ To use the modules, you first must call the `init()` method or set the access to
 Example:
 
 ```php
-if (Session::get(' access_token ')) {
+if (Session::get('access_token')) {
   $access_token = Session::get('access_token');
   $infinitum->setAccessToken($access_token);
 } else {
   try {
     $response = $infinitum->init();
     $access_token = $response["access_token"];
-    Session::put(' access_token ', $access_token);
+    Session::put('access_token', $access_token);
   } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) { } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) { }
 }
 ```
