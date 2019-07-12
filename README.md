@@ -2,7 +2,7 @@
 
 ## Installation
 
-The [Infinitum](https://packagist.org/packages/fyi/infinitum) SDK can be installed via [Composer](https://getcomposer.org/).
+The [Infinitum](https://packagist.org/packages/infinitum/php-sdk) SDK can be installed via [Composer](https://getcomposer.org/).
 
 ```
 composer require infinitum/php-sdk
