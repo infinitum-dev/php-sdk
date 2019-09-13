@@ -28,14 +28,13 @@ class Infinitum extends Http\Rest
 
    protected $workspace;
    protected $app_token;
-   protected $app_key;
-   protected $app_secret;
+   protected $identity;
 
    protected $config;
 
    protected $access_token;
 
-   public function __construct($workspace, $app_token, $app_key, $app_secret)
+   public function __construct($workspace, $app_token, $identity)
    {
       $this->workspace  = $workspace;
       if (strpos($workspace, "localhost") > -1) {
@@ -45,8 +44,7 @@ class Infinitum extends Http\Rest
       }
       $this->rest = new Rest($url);
       $this->setAppToken($app_token);
-      $this->app_key    = $app_key;
-      $this->app_secret = $app_secret;
+      $this->identity = $identity;
    }
 
    public function setAccessToken($access_token)
@@ -66,7 +64,7 @@ class Infinitum extends Http\Rest
    public function init()
    {
       try {
-         $response = $this->rest->post('init', ['app_token' => $this->app_token, 'app_key' => $this->app_key, 'app_secret' => $this->app_secret]);
+         $response = $this->rest->post('init', ['app_token' => $this->app_token, 'identity' => $this->identity]);
          $this->setAccessToken($response["access_token"]);
          return $response;
       } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {

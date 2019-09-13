@@ -19,11 +19,7 @@ class Auth extends Infinitum
       try {
          $data = [];
          if (isset($input["photo"])) {
-            if (gettype($input["photo"]) === "resource") {
-               $data["photo64"] =   "data:image/png;base64," . base64_encode(stream_get_contents($input["photo"]));
-            } else {
-               $data["photo64"] =   "data:image/png;base64," . base64_encode(file_get_contents($input["photo"]));
-            }
+            $data["photo64"] = "data:" . $input["photo"]->getMimeType() . ";base64," . base64_encode(file_get_contents($input["photo"]));
          } else if (isset($input["photo64"])) {
             $data["photo64"] = $input["photo64"];
          }

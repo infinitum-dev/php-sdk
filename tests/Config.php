@@ -5,19 +5,18 @@ namespace Fyi\Infinitum\Tests;
 class Config
 {
   private $workspace;
-  private $app_secret;
+  private $identity;
   private $app_key;
   private $app_token;
   private $infinitum;
 
-  public function __construct($workspace = "localhost:9001", $app_key = "ee83eb4f-21ba-4dea-8bce-d7236b5857d2", $app_secret = "QsQG7hZSbobef9mF0wxSM0W05d1wWehhn8l2BlQavn0=", $app_token = "asd")
+  public function __construct($workspace = "localhost:9001", $identity = "identity_test", $app_token = "asd")
   {
     $this->workspace = $workspace;
-    $this->app_secret = $app_secret;
-    $this->app_key = $app_key;
+    $this->identity = $identity;
     $this->app_token = $app_token;
 
-    $this->infinitum = new \Fyi\Infinitum\Infinitum($this->workspace, $this->app_token, $this->app_key, $this->app_secret);
+    $this->infinitum = new \Fyi\Infinitum\Infinitum($this->workspace, $this->app_token, $this->identity);
     $response = $this->infinitum->init();
     if ($response) {
       if (isset($response["access_token"])) {

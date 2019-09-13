@@ -14,10 +14,10 @@ composer require infinitum/php-sdk
 
 ### API Initialization
 
-To use the Inifnitum you need to provide the `API Key`, `API Secret`, `API Token` and the corresponding `workspace`.
+To use the Inifnitum you need to provide the `API Token`, the registered and licensed device `identity` and the corresponding `workspace`.
 
 ```php
-$infinitum = new \Fyi\Infinitum\Infinitum($workspace, $token, $key, $secret);
+$infinitum = new \Fyi\Infinitum\Infinitum($workspace, $token, $identity);
 ```
 
 ### Setting the Access Token
