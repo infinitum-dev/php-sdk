@@ -24,83 +24,89 @@ use Fyi\Infinitum\Utils\Response;
  */
 class Infinitum extends Http\Rest
 {
-   protected $rest;
+	protected $rest;
 
-   protected $workspace;
-   protected $app_token;
-   protected $identity;
+	protected $workspace;
+	protected $app_token;
+	protected $identity;
 
-   protected $config;
+	protected $config;
 
-   protected $access_token;
+	protected $access_token;
 
-   public function __construct($workspace, $app_token, $identity)
-   {
-      $this->workspace  = $workspace;
-      if (strpos($workspace, "localhost") > -1) {
-         $url = "http://" . $this->workspace . "/api/";
-      } else {
-         $url = "https://" . $this->workspace . ".infinitum.app/api/";
-      }
-      $this->rest = new Rest($url);
-      $this->setAppToken($app_token);
-      $this->identity = $identity;
-   }
+	public function __construct($workspace, $app_token, $identity)
+	{
+		$this->workspace  = $workspace;
+		if (strpos($workspace, "localhost") > -1) {
+			$url = "http://" . $this->workspace . "/api/";
+		} else {
+			$url = "https://" . $this->workspace . ".infinitum.app/api/";
+		}
+		$this->rest = new Rest($url);
+		$this->setAppToken($app_token);
+		$this->setIdentity($identity);
+	}
 
-   public function setAccessToken($access_token)
-   {
-      $this->access_token = $access_token;
-      $this->rest->addRequestHeader("Authorization", "Bearer " . $access_token);
-      return true;
-   }
+	public function setAccessToken($access_token)
+	{
+		$this->access_token = $access_token;
+		$this->rest->addRequestHeader("Authorization", "Bearer " . $access_token);
+		return true;
+	}
 
-   public function setAppToken($app_token)
-   {
-      $this->app_token = $app_token;
-      $this->rest->addRequestHeader("AppToken", $app_token);
-      return true;
-   }
+	public function setAppToken($app_token)
+	{
+		$this->app_token = $app_token;
+		$this->rest->addRequestHeader("AppToken", $app_token);
+		return true;
+	}
 
-   public function init()
-   {
-      try {
-         $response = $this->rest->post('init', ['app_token' => $this->app_token, 'identity' => $this->identity]);
-         $this->setAccessToken($response["access_token"]);
-         return $response;
-      } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
-         throw $exc;
-      } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
-         throw $exc;
-      } catch (\Exception $exc) {
-         return $exc->getMessage();
-         throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException("Unexpected error.", 500);
-      }
-   }
+	public function setIdentity($identity)
+	{
+		$this->identity = $identity;
+		$this->rest->addRequestHeader("identity", $identity);
+		return true;
+	}
 
-   /**
-    * Auth module
+	public function init()
+	{
+		try {
+			$response = $this->rest->post('init', ['app_token' => $this->app_token, 'identity' => $this->identity]);
+			$this->setAccessToken($response["access_token"]);
+			return $response;
+		} catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+			throw $exc;
+		} catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+			throw $exc;
+		} catch (\Exception $exc) {
+			throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException("Unexpected error.", 500);
+		}
+	}
 
-    */
-   public function auth()
-   {
-      return new Auth($this->rest);
-   }
+	/**
+	 * Auth module
 
-   /**
-    * Device module
+	 */
+	public function auth()
+	{
+		return new Auth($this->rest);
+	}
 
-    */
-   public function device()
-   {
-      return new Device($this->rest);
-   }
+	/**
+	 * Device module
+
+	 */
+	public function device()
+	{
+		return new Device($this->rest);
+	}
 
 
-   /**
-    * User module
-    */
-   public function user()
-   {
-      return new User($this->rest);
-   }
+	/**
+	 * User module
+	 */
+	public function user()
+	{
+		return new User($this->rest);
+	}
 }
