@@ -16,6 +16,7 @@ use Fyi\Infinitum\Http\Rest;
 use Fyi\Infinitum\Modules\Auth;
 use Fyi\Infinitum\Modules\Device;
 use Fyi\Infinitum\Modules\User;
+use Fyi\Infinitum\Modules\Cms;
 
 use Fyi\Infinitum\Utils\Response;
 
@@ -108,5 +109,13 @@ class Infinitum extends Http\Rest
 	public function user()
 	{
 		return new User($this->rest);
+	}
+
+	/**
+	 * CMS module
+	 */
+	public function cms()
+	{
+		return new Cms($this->rest);
 	}
 }

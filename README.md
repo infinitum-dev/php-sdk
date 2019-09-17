@@ -109,30 +109,30 @@ Response:
 
 ```json
 {
-  "id": 1,
-  "name": "SDK User",
-  "email": "sdkuser@infinitum.app",
-  "reference_token": "v71eELUThEPA2yzPBkxjPxWwbPgHANxF",
-  "state_id": 1,
-  "roles": [
-    {
-      "id": 1,
-      "name": "Admin",
-      "alias": "admin",
-      "permissions": ["all"],
-      "backoffice": 1,
-      "deleted_at": null,
-      "pivot": {
-        "user_id": 4,
-        "role_id": 1
-      }
+    "id": 1,
+    "name": "SDK User",
+    "email": "sdkuser@infinitum.app",
+    "reference_token": "v71eELUThEPA2yzPBkxjPxWwbPgHANxF",
+    "state_id": 1,
+    "roles": [
+        {
+            "id": 1,
+            "name": "Admin",
+            "alias": "admin",
+            "permissions": ["all"],
+            "backoffice": 1,
+            "deleted_at": null,
+            "pivot": {
+                "user_id": 4,
+                "role_id": 1
+            }
+        }
+    ],
+    "info": {
+        "birthdate": "01/01/2019",
+        "language": null,
+        "photo": "./storage/public/users/photos/example.png"
     }
-  ],
-  "info": {
-    "birthdate": "01/01/2019",
-    "language": null,
-    "photo": "./storage/public/users/photos/example.png"
-  }
 }
 ```
 
@@ -151,30 +151,30 @@ Response:
 
 ```json
 {
-  "id": 1,
-  "name": "SDK User",
-  "email": "sdkuser@infinitum.app",
-  "reference_token": "v71eELUThEPA2yzPBkxjPxWwbPgHANxF",
-  "state_id": 1,
-  "roles": [
-    {
-      "id": 1,
-      "name": "Admin",
-      "alias": "admin",
-      "permissions": ["all"],
-      "backoffice": 1,
-      "deleted_at": null,
-      "pivot": {
-        "user_id": 4,
-        "role_id": 1
-      }
+    "id": 1,
+    "name": "SDK User",
+    "email": "sdkuser@infinitum.app",
+    "reference_token": "v71eELUThEPA2yzPBkxjPxWwbPgHANxF",
+    "state_id": 1,
+    "roles": [
+        {
+            "id": 1,
+            "name": "Admin",
+            "alias": "admin",
+            "permissions": ["all"],
+            "backoffice": 1,
+            "deleted_at": null,
+            "pivot": {
+                "user_id": 4,
+                "role_id": 1
+            }
+        }
+    ],
+    "info": {
+        "birthdate": "01/01/2019",
+        "language": null,
+        "photo": "./storage/public/users/photos/example.png"
     }
-  ],
-  "info": {
-    "birthdate": "01/01/2019",
-    "language": null,
-    "photo": "./storage/public/users/photos/example.png"
-  }
 }
 ```
 
@@ -190,17 +190,17 @@ Response:
 
 ```json
 [
-  {
-    "id": 1,
-    "name": "SDK User"
+    {
+        "id": 1,
+        "name": "SDK User"
+        // (...)
+    },
+    {
+        "id": 2,
+        "name": "SDK User2"
+        // (...)
+    }
     // (...)
-  },
-  {
-    "id": 2,
-    "name": "SDK User2"
-    // (...)
-  }
-  // (...)
 ]
 ```
 
@@ -221,6 +221,25 @@ Response:
 ```json
 ["success"]
 ```
+
+##### Notify a User
+
+Send a notification to a User.
+
+```php
+$data = [
+	'action'  => 'infinitum-password-reset', // required
+	'subject' => 'Infinitum Password Reset',
+	'content' => 'Conent example',
+	'to'      => 'infinitum.user@infinitum.app',
+	'from'    => 'system@infinitum.app',
+	'lang'    => 'pt-PT'
+];
+
+$response = $userAPI->notify($data);
+```
+
+The notification action is required due to being its primary identifier. Refer to the API docs for more information.
 
 #### Device
 
@@ -253,7 +272,7 @@ There are also optional arrays (json string encoded) related to additional user 
 
 ```json
 {
-  "id": 1
+    "id": 1
 }
 ```
 
@@ -316,19 +335,19 @@ Response:
 
 ```json
 {
-  "id": 7,
-  "name": "SDK Device",
-  "ip": "192.168.1.2",
-  "mac_address": "AA:BB:CC:DD:EE:FF",
-  "identity": "device-unique-identity",
-  "app_version": "1.0.0",
-  "licensed": 1,
-  "app": {
-    // (...)
-  },
-  "users": [
-    // (...)
-  ]
+    "id": 7,
+    "name": "SDK Device",
+    "ip": "192.168.1.2",
+    "mac_address": "AA:BB:CC:DD:EE:FF",
+    "identity": "device-unique-identity",
+    "app_version": "1.0.0",
+    "licensed": 1,
+    "app": {
+        // (...)
+    },
+    "users": [
+        // (...)
+    ]
 }
 ```
 
@@ -362,10 +381,10 @@ All Auth API requests have the same response:
 
 ```json
 {
-  "id": 1,
-  "name": "SDK User",
-  "token": "(...)",
-  "email": "sdkuser@infinitum.app"
+    "id": 1,
+    "name": "SDK User",
+    "token": "(...)",
+    "email": "sdkuser@infinitum.app"
 }
 ```
 
@@ -417,6 +436,14 @@ $data = [
 ];
 
 $response = $deviceAPI->code($data);
+```
+
+#### CMS
+
+The CMS API object can be retrieved by calling it from the `\Fyi\Infinitum\Infinitum` object
+
+```php
+$authAPI = $infinitum->cms();
 ```
 
 ### Exceptions
