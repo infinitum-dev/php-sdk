@@ -16,6 +16,9 @@ class Cms extends Infinitum
 	public function getPage($session_user, $current_url, $device_type = "web", $params = [])
 	{
 		try {
+			if (empty($session_user) || $session_user == null) {
+				$session_user = "anon";
+			}
 			$user_module = $this->user();
 			if ($session_user && isset($session_user["id"])) {
 				$user = $user_module->getUser($session_user["id"]);
@@ -38,15 +41,33 @@ class Cms extends Infinitum
 			$page = $this->parseUrl($url);
 
 			$templates = $this->rest->get('cms/v4/templates?page=' . $page);
+			if (empty($templates)) throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException("No templates found for current page.", 404);
+
 			$data = [];
 			foreach ($templates as $template) {
-				$blocks = $this->getBlocksByTemplate($template["id"], ["page" => $page]);
+				$blocks_page = $this->getBlocksByTemplate($template["id"], ["page" => $page]);
+				$blocks_all = $this->getBlocksByTemplate($template["id"], ["page" => 'all']);
+				$blocks = array_merge($blocks_page, $blocks_all);
+
 				$newpos = [];
 				foreach ($template["positions"] as $position) {
 					foreach ($blocks as $block) {
-						if ($this->blockHasUserRoles($block, $session_user) && $this->blockHasTemplatePosition($block, $template["id"], $position)) {
-							$newpos[$position][] = $block;
+						if ($this->blockHasUserRoles($block, $session_user)) {
+							$block = $this->blockHasTemplatePosition($block, $template["id"], $position);
+							if ($block) {
+								unset($block["pages"]);
+								unset($block["templates"]);
+								unset($block["roles"]); #this
+								unset($block["created_at"]);
+								unset($block["updated_at"]);
+								$newpos[$position][] = $block;
+							}
 						}
+					}
+					if (isset($newpos[$position])) {
+						usort($newpos[$position], function ($a, $b) {
+							return $a["orderposition"] > $b["orderposition"];
+						});
 					}
 				}
 				$template["positions"] = $newpos;
@@ -65,13 +86,17 @@ class Cms extends Infinitum
 	public function blockHasTemplatePosition($block, $template_id, $position)
 	{
 		foreach ($block["templates"] as $t) {
-			if ($t["template_id"] === $template_id && $t["position"] === $position) return true;
+			if ($t["template_id"] === $template_id && $t["position"] === $position) {
+				$block["orderposition"] = $t["orderposition"];
+				return $block;
+			}
 		}
-		return false;
+		return null;
 	}
 
 	public function blockHasUserRoles($block, $session_user)
 	{
+		if (!is_array($session_user) && $session_user == "anon") return true;
 		foreach ($block["roles"] as $r) {
 			foreach ($session_user["roles"] as $role) {
 				if ($r === $role["id"]) return true;
@@ -99,6 +124,8 @@ class Cms extends Infinitum
 	{
 		# 0 - type
 		# 1 - content
+		if ($url === "/" || $url === "") return "home";
+
 		$ex = explode("/", $url);
 		$page = "";
 		if (isset($ex[0])) {
