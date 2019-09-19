@@ -35,45 +35,70 @@ class Cms extends Infinitum
 		}
 	}
 
-	public function getTemplate($session_user, $url, $device_type = "web")
+	public function getTemplate($session_user, $current_url, $device_type = "web")
 	{
 		try {
-			$page = $this->parseUrl($url);
-
-			$templates = $this->rest->get('cms/v4/templates?page=' . $page);
-			if (empty($templates)) throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException("No templates found for current page.", 404);
-
-			$data = [];
-			foreach ($templates as $template) {
-				$blocks_page = $this->getBlocksByTemplate($template["id"], ["page" => $page]);
-				$blocks_all = $this->getBlocksByTemplate($template["id"], ["page" => 'all']);
-				$blocks = array_merge($blocks_page, $blocks_all);
-
-				$newpos = [];
-				foreach ($template["positions"] as $position) {
-					foreach ($blocks as $block) {
-						if ($this->blockHasUserRoles($block, $session_user)) {
-							$block = $this->blockHasTemplatePosition($block, $template["id"], $position);
-							if ($block) {
-								unset($block["pages"]);
-								unset($block["templates"]);
-								unset($block["roles"]); #this
-								unset($block["created_at"]);
-								unset($block["updated_at"]);
-								$newpos[$position][] = $block;
-							}
-						}
+			$url = $this->parseUrl($current_url);
+			if (!is_array($url)) {
+				if ($url === "home") {
+					try {
+						$template = $this->rest->get('cms/v4/templates/home');
+					} catch (\Throwable $th) {
+						throw new \Exception("Home template not found.", 404);
 					}
-					if (isset($newpos[$position])) {
-						usort($newpos[$position], function ($a, $b) {
-							return $a["orderposition"] > $b["orderposition"];
-						});
+				} else if ($url === "404") {
+					try {
+						$template = $this->rest->get('cms/v4/templates/error');
+					} catch (\Throwable $th) {
+						throw new \Exception("Error template not found.", 404);
 					}
 				}
-				$template["positions"] = $newpos;
-				$data[] = $template;
+				$page = $url;
+			} else {
+				if (!isset($url["type_id"])) throw new \Exception("Missing Type.", 400);
+				if (isset($url["content_id"])) {
+					$page = 'contents_' . $url["content_id"];
+					try {
+						$template = $this->rest->get('cms/v4/templates/page/' . $page);
+					} catch (\Throwable $th) {
+						$template = $this->rest->get('cms/v4/templates/contents');
+					}
+				} else {
+					$page = 'types_' . $url["type_id"];
+					try {
+						$template = $this->rest->get('cms/v4/templates/page/' . $page);
+					} catch (\Throwable $th) {
+						$template  = $this->rest->get('cms/v4/templates/types');
+					}
+				}
 			}
-			return $data;
+			$blocks = $this->getBlocksByTemplate($template["id"], ["page" => $page]);
+			if (empty($blocks)) {
+				$blocks = $this->getBlocksByTemplate($template["id"], ["page" => $page . "_all"]);
+			}
+			$newpos = [];
+			foreach ($template["positions"] as $position) {
+				foreach ($blocks as $block) {
+					if ($this->blockHasUserRoles($block, $session_user)) {
+						$block = $this->blockHasTemplatePosition($block, $template["id"], $position);
+						if ($block) {
+							unset($block["pages"]);
+							unset($block["templates"]);
+							unset($block["roles"]); #this
+							unset($block["created_at"]);
+							unset($block["updated_at"]);
+							$newpos[$position][] = $block;
+						}
+					}
+				}
+				if (isset($newpos[$position])) {
+					usort($newpos[$position], function ($a, $b) {
+						return $a["orderposition"] > $b["orderposition"];
+					});
+				}
+			}
+			$template["positions"] = $newpos;
+			return $template;
 		} catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
 			throw $exc;
 		} catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
@@ -122,22 +147,36 @@ class Cms extends Infinitum
 
 	public function parseUrl($url)
 	{
+		if ($url == null) {
+			$url = "";
+		}
+
+		if (substr($url, 0, 1) === "/") {
+			$url = substr($url, 1, strlen($url));
+		}
+
 		# 0 - type
 		# 1 - content
+		$page = [];
 		if ($url === "/" || $url === "") return "home";
-
-		$ex = explode("/", $url);
-		$page = "";
-		if (isset($ex[0])) {
-			if ($ex[0] === "")
-				$page = "home";
-			else
-				$page = $ex[0];
-
-			if (isset($ex[1])) {
-				$page = $ex[1];
+		else if ($url === "/404" || $url === "404") return "404";
+		else {
+			$ex = explode("/", $url);
+			if (count($ex) >= 2) {
+				$page = ["type" => $ex[0], "page" => $ex[1]];
+			} else if (count($ex) == 1) {
+				$page = ["type" => $ex[0]];
 			}
 		}
-		return $page;
+		$final = [];
+		if (isset($page["type"])) {
+			$type = $this->rest->get('cms/v4/types/' . $page["type"]);
+			$final["type_id"] = $type["id"];
+			if (isset($page["page"])) {
+				$content = $this->rest->get('cms/v4/contents/' . $page["page"]);
+				$final["content_id"] = $content["id"];
+			}
+		}
+		return $final;
 	}
 }
