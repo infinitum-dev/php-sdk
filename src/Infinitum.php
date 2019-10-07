@@ -2,7 +2,7 @@
 
 /**
  * FYI Infinitum SDK WEB
- * 
+ *
  * @package FYI
  * @subpackage Infinitum SDK
  * @since 0.0.1
@@ -17,6 +17,10 @@ use Fyi\Infinitum\Modules\Auth;
 use Fyi\Infinitum\Modules\Device;
 use Fyi\Infinitum\Modules\User;
 use Fyi\Infinitum\Modules\Cms;
+use Fyi\Infinitum\Modules\Inbox;
+use Fyi\Infinitum\Modules\Eshop;
+use Fyi\Infinitum\Modules\Notification;
+use Fyi\Infinitum\Modules\Lib;
 
 use Fyi\Infinitum\Utils\Response;
 
@@ -117,5 +121,37 @@ class Infinitum extends Http\Rest
 	public function cms()
 	{
 		return new Cms($this->rest);
+	}
+
+	/**
+	 * E-shop Module
+	 */
+	public function eshop()
+	{
+		return new Eshop($this->rest);
+	}
+
+	/**
+	 * Notification Module
+	 */
+	public function notification()
+	{
+		return new Notification($this->rest);
+	}
+
+	/**
+	 * Lib Module
+	 */
+	public function lib()
+	{
+		return new Lib($this->rest);
+	}
+
+	/**
+	 * Inbox module
+	 */
+	public function inbox()
+	{
+		return new Inbox($this->rest);
 	}
 }

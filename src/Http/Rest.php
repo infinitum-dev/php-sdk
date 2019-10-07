@@ -22,18 +22,18 @@ class Rest
 
     /**
      * Set Base url for the http client
-     * 
+     *
      */
     protected function setBaseUrl(string $base_url)
     {
         $this->base_url = $base_url;
 
-        $client->setDefaultOption('base_uri', $this->base_url);
+        $this->client->setDefaultOption('base_uri', $this->base_url);
     }
 
     /**
      * Set Headers for the http client
-     * 
+     *
      */
     protected function setRequestHeaders(array $headers = [])
     {
@@ -42,7 +42,7 @@ class Rest
 
     /**
      * Add Header to the http client
-     * 
+     *
      */
     protected function addRequestHeader(string $key, string $value)
     {
@@ -52,7 +52,7 @@ class Rest
     /**
      * Send a GET request with query parameters.
      *
-     * 
+     *
      * @param string $path           Request path
      * @param array  $parameters     GET parameters
      * @param array  $requestHeaders Request Headers
@@ -89,22 +89,26 @@ class Rest
     {
         try {
             if (isset($this->requestHeaders["Authorization"]) || $path === "init") {
-                $options =
-                    [
+                if ((str_contains($path, "init") !== false))
+                    $options = [
                         'multipart' => $this->createRequestBody($parameters),
                         'headers' => $this->requestHeaders
                     ];
-
+                else
+                    $options = [
+                        'form_params' => $parameters,
+                        'headers' => $this->requestHeaders
+                    ];
 
                 $response = $this->client->request('POST', $path, $options);
                 $code     = $response->getStatusCode();
-                $status = $response->getReasonPhrase();
+                $status   = $response->getReasonPhrase();
 
                 if ($status !== "OK") {
                     throw new \Fyi\Infinitum\Exceptions\InfinitumAPIException($response->getBody()->getContents());
                 }
-                $body = json_decode($response->getBody()->getContents());
 
+                $body = json_decode($response->getBody()->getContents());
                 return $this->convert_object_to_array($body);
             } else {
                 throw new \Fyi\Infinitum\Exceptions\SDK\MissingTokenException;
@@ -114,6 +118,39 @@ class Rest
         }
     }
 
+    /**
+     * Send a PUT request with parameters.
+     *
+     * @param string $path           Request path
+     * @param array  $parameters     PUT parameters
+     * @param array  $requestHeaders Request headers
+     */
+    protected function put(string $path, array $parameters = [], array $requestHeaders = [])
+    {
+        try {
+            if (isset($this->requestHeaders["Authorization"])) {
+                $options = [
+                    'form_params' => $parameters,
+                    'headers' => $this->requestHeaders
+                ];
+
+                $response = $this->client->request('PUT', $path, $options);
+                $code     = $response->getStatusCode();
+                $status   = $response->getReasonPhrase();
+
+                if ($status !== "OK") {
+                    throw new \Fyi\Infinitum\Exceptions\InfinitumAPIException($response->getBody()->getContents());
+                }
+
+                $body = json_decode($response->getBody()->getContents());
+                return $this->convert_object_to_array($body);
+            } else {
+                throw new \Fyi\Infinitum\Exceptions\SDK\MissingTokenException;
+            }
+        } catch (\GuzzleHttp\Exception\ClientException $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumAPIException(json_decode($exc->getResponse()->getBody()->getContents()));
+        }
+    }
 
     /**
      * Send a DELETE request with parameters.
@@ -124,10 +161,9 @@ class Rest
     protected function delete(string $path, array $requestHeaders = [])
     {
         if (isset($this->requestHeaders["Authorization"])) {
-            $options =
-                [
-                    'headers' => $this->requestHeaders
-                ];
+            $options = [
+                'headers' => $this->requestHeaders
+            ];
 
             $response = $this->client->request('DELETE', $path, $options);
             $code     = $response->getStatusCode();
@@ -159,11 +195,10 @@ class Rest
             }
 
             foreach ($values as $value) {
-                $resources[] =
-                    [
-                        'name'     => $key,
-                        'contents' => $value,
-                    ];
+                $resources[] = [
+                    'name'     => $key,
+                    'contents' => $value,
+                ];
             }
         }
 
@@ -179,6 +214,7 @@ class Rest
                 $new[$key] = $this->convert_object_to_array($val);
             }
         } else $new = $obj;
+
         return $new;
     }
 }
