@@ -94,9 +94,10 @@ class Notification extends Infinitum
 
 			if (isset($input["notification_ids"])) {
 				$data["notification_ids"] = $input["notification_ids"];
-			} else if (isset($input["notifiations"])) {
+			} else if (isset($input["notifications"])) {
 				$data["notifications"] = $input["notifications"];
 			}
+
 			return $this->rest->post('notifications/subscribe/multiple', $data);
 		} catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
 			throw $exc;
@@ -118,7 +119,7 @@ class Notification extends Infinitum
 
 			if (isset($input["notification_id"])) {
 				$data["notification_id"] = $input["notification_id"];
-			} else if (isset($input["notifiation"])) {
+			} else if (isset($input["notification"])) {
 				$data["notification"] = $input["notification"];
 			}
 
@@ -144,7 +145,7 @@ class Notification extends Infinitum
 
 			if (isset($input["notification_ids"])) {
 				$data["notification_ids"] = $input["notification_ids"];
-			} else if (isset($input["notifiations"])) {
+			} else if (isset($input["notifications"])) {
 				$data["notifications"] = $input["notifications"];
 			}
 

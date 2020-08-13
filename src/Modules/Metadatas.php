@@ -3,8 +3,10 @@
 namespace Fyi\Infinitum\Modules;
 
 use Fyi\Infinitum\Infinitum;
+use Fyi\Infinitum\Modules\Eshop;
+use Fyi\Infinitum\Modules\User;
 
-class Lib extends Infinitum
+class Metadatas extends Infinitum
 {
     protected $rest;
 
@@ -13,13 +15,18 @@ class Lib extends Infinitum
         $this->rest = $rest;
     }
 
-    public function call($api, $method, $type, $data = [])
+    /**
+     * Get metadatas information by page type and language id
+     *
+     * @param {string} $page
+     * @param {string} language_id
+     *
+     * @return {object}
+     */
+    public function getMetadataByPageAndLanguage($page, $language_id)
     {
         try {
-            if ($type == 'get')
-                return $this->rest->get('lib/' . $api . '/' . $method);
-            else if ($type == 'post')
-                return $this->rest->post('lib/' . $api . '/' . $method, $data, [], ['timeout' => 60]);
+            return $this->rest->get('cms/v4/metadatas/' . $page . '/' . $language_id);
         } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
             throw $exc;
         } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {

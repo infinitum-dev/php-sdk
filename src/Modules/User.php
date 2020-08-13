@@ -24,6 +24,10 @@ class User extends Infinitum
                 $data["password"] = $input["password"];
             }
 
+            if (isset($input["is_password_default"])) {
+                $data["is_password_default"] = $input["is_password_default"];
+            }
+
             if (isset($input["state"])) {
                 $data["state"] = $input["state"];
             }
@@ -79,6 +83,8 @@ class User extends Infinitum
             }
 
             if (isset($input["groups"])) {
+                if (!is_array($input["groups"]))
+                    $input["groups"] = [$input["groups"]];
                 $data["groups"] = $input["groups"];
             }
 
@@ -94,8 +100,27 @@ class User extends Infinitum
                 $data["relations"] = $input["relations"];
             }
 
+            if (isset($input["inverse_relations"])) {
+                $data["inverse_relations"] = $input["inverse_relations"];
+            }
+
             if (isset($input["notification"])) {
                 $data["notification"] = $input["notification"];
+            }
+
+            foreach ($input as $ik => $iv) {
+                if (strpos($ik, "field_") !== false) {
+                    if (!isset($input["fields"]))
+                        $input["fields"] = [];
+
+                    $field = explode("_", $ik);
+
+                    array_push($input["fields"], ["id" => $field[1], "value" => $iv]);
+                }
+            }
+
+            if (isset($input["fields"])) {
+                $data["fields"] = $input["fields"];
             }
 
             return $this->rest->post('users', $data);
@@ -104,7 +129,6 @@ class User extends Infinitum
         } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
             throw $exc;
         } catch (\Exception $exc) {
-            dd($exc);
             throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
         }
     }
@@ -190,8 +214,16 @@ class User extends Infinitum
                 $data["relations"] = $input["relations"];
             }
 
+            if (isset($input["inverse_relations"])) {
+                $data["inverse_relations"] = $input["inverse_relations"];
+            }
+
             if (isset($input["notification"])) {
                 $data["notification"] = $input["notification"];
+            }
+
+            if (isset($input["fields"])) {
+                $data["fields"] = $input["fields"];
             }
 
             return $this->rest->put('users/' . $id, $data);
@@ -229,14 +261,10 @@ class User extends Infinitum
         }
     }
 
-    public function getUsers($ids = null)
+    public function getUsers($ids = null, $roles = null, $groups = null, $related = null)
     {
         try {
-            if (isset($ids)) {
-                return $this->rest->get('users?ids=' . $ids);
-            } else {
-                return $this->rest->get('users');
-            }
+            return $this->rest->get('users', ['ids' => $ids, 'roles' => $roles, 'groups' => $groups, 'related' => $related]);
         } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
             throw $exc;
         } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
@@ -259,16 +287,23 @@ class User extends Infinitum
         }
     }
 
-    public function getByEmail($input)
+    public function getByEmail($email)
     {
         try {
-            if (isset($input["email"])) {
-                $email = $input["email"];
-            } else {
-                throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException("Missing email", 400);
-            }
-
             return $this->rest->get('users/' . $email);
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
+    public function getByField($id, $value)
+    {
+        try {
+            return $this->rest->get('users/fields/' . $id . '/' . $value);
         } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
             throw $exc;
         } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
@@ -375,6 +410,19 @@ class User extends Infinitum
         }
     }
 
+    public function getGroup($group)
+    {
+        try {
+            return $this->rest->get('users/groups/' . $group);
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
     public function getGroups()
     {
         try {
@@ -405,14 +453,31 @@ class User extends Infinitum
         }
     }
 
-    public function passwordreset($password, $token)
+    public function passwordreset($password, $token, $callback_url)
     {
         try {
             $data = [];
             $data['password'] = $password;
             $data['token'] = $token;
+            $data['callback_url'] = $callback_url;
 
             return $this->rest->post('users/password/reset', $data);
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
+    public function passwordupdate($user_id, $password)
+    {
+        try {
+            $data = [];
+            $data['password'] = $password;
+            $data['user_id'] = $user_id;
+            return $this->rest->post('users/password/update', $data);
         } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
             throw $exc;
         } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
@@ -448,7 +513,45 @@ class User extends Infinitum
         } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
             throw $exc;
         } catch (\Exception $exc) {
-            dd($exc);
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
+    public function destroyUserRole($user_id, $role_id)
+    {
+        try {
+            return $this->rest->delete('users/' . $user_id . '\/roles/' . $role_id);
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
+    public function updateRelation($user_id, $related_id, $data)
+    {
+        try {
+            return $this->rest->put('users/relations/' . $user_id . '/' . $related_id, $data);
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
+            throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
+        }
+    }
+
+    public function storeRelation($data)
+    {
+        try {
+            return $this->rest->post('users/relations', $data);
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumAPIException $exc) {
+            throw $exc;
+        } catch (\Fyi\Infinitum\Exceptions\InfinitumSDKException $exc) {
+            throw $exc;
+        } catch (\Exception $exc) {
             throw new \Fyi\Infinitum\Exceptions\InfinitumSDKException($exc->getMessage(), $exc->getCode());
         }
     }

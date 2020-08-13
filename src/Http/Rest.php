@@ -81,15 +81,16 @@ class Rest
     /**
      * Send a POST request with parameters.
      *
-     * @param string $path           Request path
-     * @param array  $parameters     POST parameters
+     * @param string $path Request path
+     * @param array  $parameters POST parameters
      * @param array  $requestHeaders Request headers
+     * @param array  $extra Request headers
      */
-    protected function post(string $path, array $parameters = [], array $requestHeaders = [])
+    protected function post(string $path, array $parameters = [], array $requestHeaders = [], array $extra = [], $multiform = false)
     {
         try {
             if (isset($this->requestHeaders["Authorization"]) || $path === "init") {
-                if ((str_contains($path, "init") !== false))
+                if ((str_contains($path, "init") !== false) || $multiform)
                     $options = [
                         'multipart' => $this->createRequestBody($parameters),
                         'headers' => $this->requestHeaders
@@ -99,6 +100,10 @@ class Rest
                         'form_params' => $parameters,
                         'headers' => $this->requestHeaders
                     ];
+
+                if (!empty($extra)) {
+                    $options = array_merge($options, $extra);
+                }
 
                 $response = $this->client->request('POST', $path, $options);
                 $code     = $response->getStatusCode();
@@ -195,10 +200,20 @@ class Rest
             }
 
             foreach ($values as $value) {
-                $resources[] = [
-                    'name'     => $key,
-                    'contents' => $value,
-                ];
+                if($value instanceof \Illuminate\Http\UploadedFile)
+                {
+                    $resources[] = [
+                        'name'     => $key,
+                        'contents' => fopen($value->path(), 'r'),
+                    ];
+                }
+                else
+                {
+                    $resources[] = [
+                        'name'     => $key,
+                        'contents' => $value,
+                    ];
+                }
             }
         }
 

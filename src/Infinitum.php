@@ -17,11 +17,12 @@ use Fyi\Infinitum\Modules\Auth;
 use Fyi\Infinitum\Modules\Device;
 use Fyi\Infinitum\Modules\User;
 use Fyi\Infinitum\Modules\Cms;
+use Fyi\Infinitum\Modules\Clients;
 use Fyi\Infinitum\Modules\Inbox;
 use Fyi\Infinitum\Modules\Eshop;
 use Fyi\Infinitum\Modules\Notification;
 use Fyi\Infinitum\Modules\Lib;
-
+use Fyi\Infinitum\Modules\Worklog;
 use Fyi\Infinitum\Utils\Response;
 
 /**
@@ -45,7 +46,7 @@ class Infinitum extends Http\Rest
 		if (strpos($workspace, "localhost") > -1) {
 			$url = "http://" . $this->workspace . "/api/";
 		} else {
-			$url = "https://" . $this->workspace . ".infinitum.app/api/";
+			$url = "https://" . $this->workspace . "/api/";
 		}
 		$this->rest = new Rest($url);
 		$this->setAppToken($app_token);
@@ -124,6 +125,15 @@ class Infinitum extends Http\Rest
 	}
 
 	/**
+	 * Cliente module
+
+	 */
+	public function clients()
+	{
+		return new Clients($this->rest);
+	}
+
+	/**
 	 * E-shop Module
 	 */
 	public function eshop()
@@ -153,5 +163,13 @@ class Infinitum extends Http\Rest
 	public function inbox()
 	{
 		return new Inbox($this->rest);
+	}
+
+	/**
+	 * Worklog module
+	 */
+	public function worklog()
+	{
+		return new Worklog($this->rest);
 	}
 }
